@@ -15,30 +15,71 @@
  */
 package com.example.android.sunshine;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import com.example.android.sunshine.data.SunshinePreferences;
+import com.example.android.sunshine.utilities.NetworkUtils;
+import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
+import com.example.android.sunshine.utilities.SunshineWeatherUtils;
+
+import java.net.URL;
+
 public class MainActivity extends AppCompatActivity {
 
-    private TextView weatherText;
+    private TextView mWeatherText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
 
-        weatherText = (TextView) findViewById(R.id.tv_weather_data);
+        /*
+         * Using findViewById, we get a reference to our TextView from xml. This allows us to
+         * do things like set the text of the TextView.
+         */
+        mWeatherText = (TextView) findViewById(R.id.tv_weather_data);
 
-        String[] dummyData = new String[10];
-        for (int i = 0; i < dummyData.length; i++) {
-            dummyData[i] = "Weather " + i;
+        loadWeatherData();
+    }
+
+    private void loadWeatherData() {
+        String location = SunshinePreferences.getPreferredWeatherLocation(this);
+        new FetchWeatherTask().execute(location);
+    }
+
+    private class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+
+        @Override
+        protected String[] doInBackground(String... params) {
+            if (params.length == 0) {
+                return null;
+            }
+            String location = params[0];
+            URL weatherRequestUrl = NetworkUtils.buildUrl(location);
+
+            try {
+                String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
+                String[] weatherData = OpenWeatherJsonUtils.getSimpleWeatherStringsFromJson(
+                        MainActivity.this,
+                        jsonWeatherResponse
+                );
+                return weatherData;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
-        StringBuilder builder = new StringBuilder();
-        for (String data : dummyData) {
-            builder.append(data + "\n\n\n");
+        @Override
+        protected void onPostExecute(String[] weatherData) {
+            if (weatherData != null) {
+                for (String weatherString : weatherData) {
+                    mWeatherText.append(weatherString + "\n\n\n");
+                }
+            }
         }
-        weatherText.setText(builder.toString());
     }
 }
