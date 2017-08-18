@@ -24,6 +24,8 @@
     <!--or something similar.-->
     <string name="app_name">Sunshine</string>
 
+    <string name="action_refresh_title">Refresh</string>
+
 
     <!-- - - - - - - - - - - - - -->
     <!--Used by SunshineDateUtils-->
