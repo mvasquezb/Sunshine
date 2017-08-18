@@ -20,6 +20,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.sunshine.data.SunshinePreferences;
@@ -31,6 +33,8 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
 
     private TextView mWeatherText;
+    private TextView mErrorMessage;
+    private ProgressBar mLoadingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,16 +46,35 @@ public class MainActivity extends AppCompatActivity {
          * do things like set the text of the TextView.
          */
         mWeatherText = (TextView) findViewById(R.id.tv_weather_data);
+        mErrorMessage = (TextView) findViewById(R.id.error_message);
+        mLoadingView = (ProgressBar) findViewById(R.id.loading_view);
 
+        /* Once all of our views are setup, we can load the weather data. */
         loadWeatherData();
     }
 
     private void loadWeatherData() {
+        showWeatherDataView();
         String location = SunshinePreferences.getPreferredWeatherLocation(this);
         new FetchWeatherTask().execute(location);
     }
 
-    private class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+    private void showWeatherDataView() {
+        mErrorMessage.setVisibility(View.INVISIBLE);
+        mWeatherText.setVisibility(View.VISIBLE);
+    }
+
+    private void showErrorMessage() {
+        mWeatherText.setVisibility(View.INVISIBLE);
+        mErrorMessage.setVisibility(View.VISIBLE);
+    }
+
+    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+
+        @Override
+        protected void onPreExecute() {
+            mLoadingView.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected String[] doInBackground(String... params) {
@@ -76,10 +99,20 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String[] weatherData) {
+            mLoadingView.setVisibility(View.INVISIBLE);
+
             if (weatherData != null) {
+                mWeatherText.setVisibility(View.VISIBLE);
+                /*
+                 * Iterate through the array and append the Strings to the TextView. The reason why we add
+                 * the "\n\n\n" after the String is to give visual separation between each String in the
+                 * TextView. Later, we'll learn about a better way to display lists of data.
+                 */
                 for (String weatherString : weatherData) {
                     mWeatherText.append(weatherString + "\n\n\n");
                 }
+            } else {
+                showErrorMessage();
             }
         }
     }
