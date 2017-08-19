@@ -16,11 +16,13 @@
 package com.example.android.sunshine
 
 import android.content.Intent
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -35,6 +37,10 @@ import com.example.android.sunshine.utilities.OpenWeatherJsonUtils
 import java.net.URL
 
 class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler {
+
+    companion object {
+        val TAG = MainActivity.javaClass.simpleName
+    }
 
     private lateinit var mForecastList: RecyclerView
     private lateinit var mForecastAdapter: ForecastAdapter
@@ -135,7 +141,28 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
                 mForecastAdapter.setWeatherData(arrayOf<String>())
                 loadWeatherData()
             }
+            R.id.btn_action_map -> {
+                openLocationInMap()
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun openLocationInMap() {
+        val addressString = "1600 Ampitheatre Parkway, CA"
+        val geoLocation = Uri.Builder()
+                .scheme("geo")
+                .authority("0,0")
+                .appendQueryParameter("q", addressString)
+                .build()
+
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = geoLocation
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Log.d(TAG, "Couldn't call $geoLocation, no receiving apps installed!")
+        }
     }
 }
