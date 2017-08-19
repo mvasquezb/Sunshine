@@ -15,6 +15,7 @@
  */
 package com.example.android.sunshine
 
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -78,7 +79,9 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
     }
 
     override fun onItemClick(weatherData: String) {
-        Toast.makeText(this, weatherData, Toast.LENGTH_SHORT).show()
+        val forecastDetail = Intent(this, DetailActivity::class.java)
+        forecastDetail.putExtra("weatherData", weatherData)
+        startActivity(forecastDetail)
     }
 
     inner class FetchWeatherTask : AsyncTask<String, Void, Array<String>>() {
