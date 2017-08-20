@@ -17,8 +17,9 @@ package com.example.android.sunshine
 
 import android.content.Intent
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Bundle
+import android.support.v4.app.LoaderManager
+import android.support.v4.content.Loader
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -28,18 +29,17 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
+import com.example.android.sunshine.data.FetchWeatherLoader
+import com.example.android.sunshine.data.WeatherLoaderActions
 
-import com.example.android.sunshine.data.SunshinePreferences
-import com.example.android.sunshine.utilities.NetworkUtils
-import com.example.android.sunshine.utilities.OpenWeatherJsonUtils
-
-import java.net.URL
-
-class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler {
+class MainActivity :
+        AppCompatActivity(),
+        ForecastAdapter.ForecastAdapterOnClickHandler,
+        LoaderManager.LoaderCallbacks<Array<String>> {
 
     companion object {
         val TAG = MainActivity.javaClass.simpleName
+        val FORECAST_LOADER_ID = 42
     }
 
     private lateinit var mForecastList: RecyclerView
@@ -65,13 +65,7 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         mForecastAdapter = ForecastAdapter(this)
         mForecastList.adapter = mForecastAdapter
 
-        loadWeatherData()
-    }
-
-    private fun loadWeatherData() {
-        showWeatherDataView()
-        val location = SunshinePreferences.getPreferredWeatherLocation(this)
-        FetchWeatherTask().execute(location)
+        supportLoaderManager.initLoader(FORECAST_LOADER_ID, null, this)
     }
 
     private fun showWeatherDataView() {
@@ -90,46 +84,6 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         startActivity(forecastDetail)
     }
 
-    inner class FetchWeatherTask : AsyncTask<String, Void, Array<String>>() {
-
-        override fun onPreExecute() {
-            super.onPreExecute()
-            mLoadingView.visibility = View.VISIBLE
-        }
-
-        override fun doInBackground(vararg params: String): Array<String>? {
-            if (params.isEmpty()) {
-                return null
-            }
-            val location = params[0]
-            val weatherRequestUrl = NetworkUtils.buildUrl(location)!!
-
-            try {
-                val jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl)
-                val weatherData = OpenWeatherJsonUtils.getSimpleWeatherStringsFromJson(
-                        this@MainActivity,
-                        jsonWeatherResponse ?: ""
-                )
-                return weatherData
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return null
-            }
-
-        }
-
-        override fun onPostExecute(weatherData: Array<String>?) {
-            mLoadingView.visibility = View.INVISIBLE
-
-            if (weatherData != null) {
-                mForecastList.visibility = View.VISIBLE
-                mForecastAdapter.setWeatherData(weatherData)
-            } else {
-                showErrorMessage()
-            }
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.forecast, menu)
         return true
@@ -139,7 +93,7 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         when (item.itemId) {
             R.id.btn_action_refresh -> {
                 mForecastAdapter.setWeatherData(arrayOf<String>())
-                loadWeatherData()
+                supportLoaderManager.restartLoader(FORECAST_LOADER_ID, null, this)
             }
             R.id.btn_action_map -> {
                 openLocationInMap()
@@ -164,5 +118,30 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         } else {
             Log.d(TAG, "Couldn't call $geoLocation, no receiving apps installed!")
         }
+    }
+
+    /**
+     * LoaderManager.LoaderCallbacks implementation
+     */
+    override fun onLoadFinished(loader: Loader<Array<String>>?, weatherData: Array<String>?) {
+        mLoadingView.visibility = View.INVISIBLE
+
+        if (weatherData != null) {
+            mForecastAdapter.setWeatherData(weatherData)
+            showWeatherDataView()
+        } else {
+            showErrorMessage()
+        }
+    }
+
+    override fun onCreateLoader(p0: Int, p1: Bundle?): Loader<Array<String>> {
+        return FetchWeatherLoader(this@MainActivity, object : WeatherLoaderActions {
+            override fun onStartLoading() {
+                mLoadingView.visibility = View.VISIBLE
+            }
+        })
+    }
+
+    override fun onLoaderReset(p0: Loader<Array<String>>?) {
     }
 }
