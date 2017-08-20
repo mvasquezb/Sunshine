@@ -66,20 +66,15 @@ object NetworkUtils {
      * *
      * @return The URL to use to query the weather server.
      */
-    fun buildUrl(locationQuery: String): URL? {
+    fun buildUrl(locationQuery: String): URL {
         val queryUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                 .appendQueryParameter(FORMAT_PARAM, format)
                 .appendQueryParameter(UNITS_PARAM, units)
                 .appendQueryParameter(DAYS_PARAM, numDays.toString())
                 .appendQueryParameter(QUERY_PARAM, locationQuery)
                 .build()
-        try {
-            return URL(queryUri.toString())
-        } catch (ex: MalformedURLException) {
-            ex.printStackTrace()
-            return null
-        }
 
+        return URL(queryUri.toString())
     }
 
     /**
