@@ -10,7 +10,7 @@
         android:title="@string/pref_location_title"/>
 
     <ListPreference
-        android:defaultValue="@string/pref_units_metric"
+        android:defaultValue="@string/pref_units_default_value"
         android:entries="@array/pref_units_labels"
         android:entryValues="@array/pref_units_options"
         android:key="@string/pref_units_key"
