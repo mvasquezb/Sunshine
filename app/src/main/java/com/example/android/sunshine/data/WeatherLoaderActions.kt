@@ -5,5 +5,4 @@ package com.example.android.sunshine.data
  */
 interface WeatherLoaderActions {
     fun onStartLoading()
-
 }

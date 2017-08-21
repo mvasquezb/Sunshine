@@ -9,15 +9,14 @@ import java.net.URL
 /**
  * Created by pmvb on 17-08-20.
  */
-class FetchWeatherLoader(
-        context: Context,
-        var mActionHandler: WeatherLoaderActions) : AsyncTaskLoader<Array<String>>(context) {
+class FetchWeatherLoader(context: Context) : AsyncTaskLoader<Array<String>>(context) {
 
-    var mWeatherData = arrayOf<String>()
+    private var mWeatherData = arrayOf<String>()
+    var mActionHandler: WeatherLoaderActions? = null
 
     override fun onStartLoading() {
         super.onStartLoading()
-        mActionHandler.onStartLoading()
+        mActionHandler?.onStartLoading()
         if (!mWeatherData.isEmpty()) {
             deliverResult(mWeatherData)
         } else {
