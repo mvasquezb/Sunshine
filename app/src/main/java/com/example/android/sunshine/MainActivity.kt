@@ -98,6 +98,10 @@ class MainActivity :
             R.id.btn_action_map -> {
                 openLocationInMap()
             }
+            R.id.btn_action_settings -> {
+                val settings = Intent(this, SettingsActivity::class.java)
+                startActivity(settings)
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -139,6 +143,7 @@ class MainActivity :
             override fun onStartLoading() {
                 mLoadingView.visibility = View.VISIBLE
             }
+
         })
     }
 

@@ -38,6 +38,10 @@ class DetailActivity : AppCompatActivity() {
                 shareForecast()
                 return true
             }
+            R.id.btn_action_settings -> {
+                val settings = Intent(this, SettingsActivity::class.java)
+                startActivity(settings)
+            }
         }
         return super.onOptionsItemSelected(item)
     }
