@@ -14,6 +14,10 @@ class FetchWeatherLoader(context: Context) : AsyncTaskLoader<Array<String>>(cont
     private var mWeatherData = arrayOf<String>()
     var mActionHandler: WeatherLoaderActions? = null
 
+    constructor(context: Context, actionHandler: WeatherLoaderActions) : this(context) {
+        mActionHandler = actionHandler
+    }
+
     override fun onStartLoading() {
         super.onStartLoading()
         mActionHandler?.onStartLoading()
