@@ -11,6 +11,9 @@
     <item
         android:id="@+id/btn_action_map"
         android:orderInCategory="1"
-        android:title="@string/action_map_title"
-        app:showAsAction="ifRoom"/>
+        android:title="@string/action_map_title"/>
+    <item
+        android:id="@+id/btn_action_settings"
+        android:orderInCategory="1"
+        android:title="@string/action_settings_title"/>
 </menu>
