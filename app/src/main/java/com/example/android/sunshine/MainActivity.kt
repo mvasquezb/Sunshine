@@ -16,11 +16,13 @@
 package com.example.android.sunshine
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.Loader
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.preference.PreferenceManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -30,12 +32,14 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.example.android.sunshine.data.FetchWeatherLoader
+import com.example.android.sunshine.data.SunshinePreferences
 import com.example.android.sunshine.data.WeatherLoaderActions
 
 class MainActivity :
         AppCompatActivity(),
         ForecastAdapter.ForecastAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<Array<String>> {
+        LoaderManager.LoaderCallbacks<Array<String>>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     companion object {
         val TAG = MainActivity.javaClass.simpleName
@@ -46,6 +50,7 @@ class MainActivity :
     private lateinit var mForecastAdapter: ForecastAdapter
     private lateinit var mErrorMessage: TextView
     private lateinit var mLoadingView: ProgressBar
+    private var mPrefsChanged: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +71,25 @@ class MainActivity :
         mForecastList.adapter = mForecastAdapter
 
         supportLoaderManager.initLoader(FORECAST_LOADER_ID, null, this)
+
+        PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (mPrefsChanged) {
+            supportLoaderManager.restartLoader(FORECAST_LOADER_ID, null, this)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this)
     }
 
     private fun showWeatherDataView() {
@@ -107,7 +131,7 @@ class MainActivity :
     }
 
     private fun openLocationInMap() {
-        val addressString = "1600 Ampitheatre Parkway, CA"
+        val addressString = SunshinePreferences.getPreferredWeatherLocation(this)
         val geoLocation = Uri.Builder()
                 .scheme("geo")
                 .authority("0,0")
@@ -138,15 +162,21 @@ class MainActivity :
         }
     }
 
-    override fun onCreateLoader(p0: Int, p1: Bundle?): Loader<Array<String>> {
+    override fun onCreateLoader(loaderId: Int, loaderArgs: Bundle?): Loader<Array<String>> {
         return FetchWeatherLoader(this@MainActivity, object : WeatherLoaderActions {
             override fun onStartLoading() {
                 mLoadingView.visibility = View.VISIBLE
             }
-
         })
     }
 
-    override fun onLoaderReset(p0: Loader<Array<String>>?) {
+    override fun onLoaderReset(loader: Loader<Array<String>>?) {
+    }
+
+    /**
+     * SharedPreferenceChangeListener implementation
+     */
+    override fun onSharedPreferenceChanged(sharedPrefs: SharedPreferences, key: String) {
+        mPrefsChanged = true
     }
 }
