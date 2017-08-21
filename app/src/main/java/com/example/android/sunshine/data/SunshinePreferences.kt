@@ -16,6 +16,9 @@
 package com.example.android.sunshine.data
 
 import android.content.Context
+import android.support.v7.preference.PreferenceManager
+import android.util.Log
+import com.example.android.sunshine.R
 
 object SunshinePreferences {
 
@@ -36,9 +39,7 @@ object SunshinePreferences {
      * Before you implement methods to return your REAL preference for location,
      * we provide some default values to work with.
      */
-    private
-            /** This will be implemented in a future lesson  */
-    val defaultWeatherLocation = "94043,USA"
+    private val defaultWeatherLocation = "94043,USA"
     /** This will be implemented in a future lesson  */
     val defaultWeatherCoordinates = doubleArrayOf(37.4284, 122.0724)
 
@@ -96,8 +97,12 @@ object SunshinePreferences {
      * * "94043,USA" if SharedPreferences have not been implemented yet.
      */
     fun getPreferredWeatherLocation(context: Context): String {
-        /** This will be implemented in a future lesson  */
-        return defaultWeatherLocation
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val location = sharedPrefs.getString(
+                context.getString(R.string.pref_location_key),
+                context.getString(R.string.pref_location_default_value)
+        )
+        return location
     }
 
     /**
@@ -108,8 +113,14 @@ object SunshinePreferences {
      * @return true If metric display should be used
      */
     fun isMetric(context: Context): Boolean {
-        /** This will be implemented in a future lesson  */
-        return true
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val defaultPref = context.getString(R.string.pref_units_default_value)
+        val metricPref = context.getString(R.string.pref_units_metric)
+
+        return sharedPrefs.getString(
+                context.getString(R.string.pref_units_key),
+                defaultPref
+        ) == metricPref
     }
 
     /**
