@@ -20,10 +20,10 @@ class FetchWeatherLoader(context: Context) : AsyncTaskLoader<Array<String>>(cont
 
     override fun onStartLoading() {
         super.onStartLoading()
-        mActionHandler?.onStartLoading()
         if (!mWeatherData.isEmpty()) {
             deliverResult(mWeatherData)
         } else {
+            mActionHandler?.onStartLoading()
             forceLoad()
         }
     }
