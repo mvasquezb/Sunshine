@@ -28,10 +28,10 @@ import java.util.TimeZone
  */
 object SunshineDateUtils {
 
-    val SECOND_IN_MILLIS: Long = 1000
-    val MINUTE_IN_MILLIS = SECOND_IN_MILLIS * 60
-    val HOUR_IN_MILLIS = MINUTE_IN_MILLIS * 60
-    val DAY_IN_MILLIS = HOUR_IN_MILLIS * 24
+    @JvmField val SECOND_IN_MILLIS: Long = 1000
+    @JvmField val MINUTE_IN_MILLIS = SECOND_IN_MILLIS * 60
+    @JvmField val HOUR_IN_MILLIS = MINUTE_IN_MILLIS * 60
+    @JvmField val DAY_IN_MILLIS = HOUR_IN_MILLIS * 24
 
     /**
      * This method returns the number of days since the epoch (January 01, 1970, 12:00 Midnight UTC)
@@ -57,7 +57,7 @@ object SunshineDateUtils {
      * *
      * @return The UTC date at 12 midnight
      */
-    fun normalizeDate(date: Long): Long {
+    @JvmStatic fun normalizeDate(date: Long): Long {
         // Normalize the start date to the beginning of the (UTC) day in local time
         val retValNew = date / DAY_IN_MILLIS * DAY_IN_MILLIS
         return retValNew
