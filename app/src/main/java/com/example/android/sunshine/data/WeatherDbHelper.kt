@@ -33,6 +33,7 @@ class WeatherDbHelper(context: Context) :
     }
 
     override fun onUpgrade(sqLiteDatabase: SQLiteDatabase, i: Int, i1: Int) {
-
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS ${WeatherContract.WeatherEntry.TABLE_NAME}")
+        onCreate(sqLiteDatabase)
     }
 }
