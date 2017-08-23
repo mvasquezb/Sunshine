@@ -4,7 +4,9 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import com.example.android.sunshine.utilities.SunshineDateUtils
 
 /**
  * Created by pmvb on 17-08-22.
@@ -39,14 +41,6 @@ class WeatherProvider : ContentProvider() {
         mDbHelper = WeatherDbHelper(context)
 
         return true
-    }
-
-    override fun bulkInsert(uri: Uri?, values: Array<out ContentValues>?): Int {
-        return super.bulkInsert(uri, values)
-    }
-
-    override fun insert(uri: Uri, values: ContentValues): Uri {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun query(
@@ -91,17 +85,86 @@ class WeatherProvider : ContentProvider() {
         return cursor
     }
 
+    override fun bulkInsert(uri: Uri, values: Array<out ContentValues>): Int {
+        when(sUriMatcher.match(uri)) {
+            CODE_WEATHER -> {
+                val db = mDbHelper.writableDatabase
+                db.beginTransaction()
+                var rowsInserted = 0
+                try {
+                    values.forEach { value ->
+                        val _id = insertUtil(db, value)
+                        if (_id != -1.toLong()) {
+                            rowsInserted++
+                        }
+                    }
+                    db.setTransactionSuccessful()
+                } finally {
+                    db.endTransaction()
+                }
+                if (rowsInserted > 0) {
+                    context.contentResolver.notifyChange(uri, null)
+                }
+                return rowsInserted
+            }
+            else -> return super.bulkInsert(uri, values)
+        }
+    }
+
+    override fun insert(uri: Uri, values: ContentValues): Uri? {
+        when (sUriMatcher.match(uri)) {
+            CODE_WEATHER -> {
+                val db = mDbHelper.writableDatabase
+                db.beginTransaction()
+                try {
+                    val _id = insertUtil(db, values)
+                    if (_id != -1.toLong()) {
+                        context.contentResolver.notifyChange(uri, null)
+                    }
+                } finally {
+                    db.endTransaction()
+                }
+                return uri
+            }
+            else -> return null
+        }
+    }
+
+    private fun insertUtil(db: SQLiteDatabase, values: ContentValues): Long {
+        val date = values.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE)
+        if (SunshineDateUtils.isDateNormalized(date)) {
+            throw IllegalArgumentException("Date must be normalized to insert")
+        }
+        val _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values)
+        return _id
+    }
+
     override fun update(
             uri: Uri,
             values: ContentValues,
             selection: String?,
             selectionArgs: Array<out String>?
     ): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("Not yet implemented")
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val _selection = selection ?: "1"
+        var rowsDeleted = 0
+        when (sUriMatcher.match(uri)) {
+            CODE_WEATHER -> {
+                rowsDeleted = mDbHelper.writableDatabase.delete(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        _selection,
+                        selectionArgs
+                )
+            }
+            else -> throw UnsupportedOperationException("Unknown uri: $uri")
+        }
+        if (rowsDeleted != 0) {
+            context.contentResolver.notifyChange(uri, null)
+        }
+        return rowsDeleted
     }
 
     override fun getType(uri: Uri): String {

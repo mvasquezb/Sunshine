@@ -22,6 +22,9 @@ import com.example.android.sunshine.R
 
 import java.text.SimpleDateFormat
 import java.util.TimeZone
+import android.text.format.DateUtils.DAY_IN_MILLIS
+
+
 
 /**
  * Class for handling date conversions that are useful for Sunshine.
@@ -61,6 +64,25 @@ object SunshineDateUtils {
         // Normalize the start date to the beginning of the (UTC) day in local time
         val retValNew = date / DAY_IN_MILLIS * DAY_IN_MILLIS
         return retValNew
+    }
+
+    /**
+     * In order to ensure consistent inserts into WeatherProvider, we check that dates have been
+     * normalized before they are inserted. If they are not normalized, we don't want to accept
+     * them, and leave it up to the caller to throw an IllegalArgumentException.
+
+     * @param millisSinceEpoch Milliseconds since January 1, 1970 at midnight
+     * *
+     * *
+     * @return true if the date represents the beginning of a day in Unix time, false otherwise
+     */
+    fun isDateNormalized(millisSinceEpoch: Long): Boolean {
+        var isDateNormalized = false
+        if (millisSinceEpoch % DAY_IN_MILLIS == 0.toLong()) {
+            isDateNormalized = true
+        }
+
+        return isDateNormalized
     }
 
     /**
