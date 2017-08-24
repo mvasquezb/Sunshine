@@ -17,9 +17,11 @@ package com.example.android.sunshine
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.LoaderManager
+import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.preference.PreferenceManager
@@ -33,30 +35,39 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.example.android.sunshine.data.FetchWeatherLoader
 import com.example.android.sunshine.data.SunshinePreferences
+import com.example.android.sunshine.data.WeatherContract
 import com.example.android.sunshine.data.WeatherLoaderActions
 
 class MainActivity :
         AppCompatActivity(),
         ForecastAdapter.ForecastAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<Array<String>>,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     companion object {
         val TAG = MainActivity.javaClass.simpleName
         val FORECAST_LOADER_ID = 42
+
+        @JvmStatic private val MAIN_FORECAST_PROJECTION = arrayOf(
+                WeatherContract.WeatherEntry.COLUMN_DATE,
+                WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+                WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+                WeatherContract.WeatherEntry.COLUMN_WEATHER_ID
+        )
+        @JvmField val INDEX_WEATHER_DATE = 0
+        @JvmField val INDEX_WEATHER_MAX_TEMP = 1
+        @JvmField val INDEX_WEATHER_MIN_TEMP = 2
+        @JvmField val INDEX_WEATHER_WEATHER_ID = 3
     }
 
     private lateinit var mForecastList: RecyclerView
     private lateinit var mForecastAdapter: ForecastAdapter
-    private lateinit var mErrorMessage: TextView
     private lateinit var mLoadingView: ProgressBar
-    private var mPrefsChanged: Boolean = false
+    private var mPosition: Int = RecyclerView.NO_POSITION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forecast)
 
-        mErrorMessage = findViewById(R.id.error_message) as TextView
         mLoadingView = findViewById(R.id.loading_view) as ProgressBar
         mForecastList = findViewById(R.id.forecast_list) as RecyclerView
 
@@ -67,39 +78,17 @@ class MainActivity :
         )
         mForecastList.layoutManager = layoutManager
         mForecastList.setHasFixedSize(true)
-        mForecastAdapter = ForecastAdapter(this)
+        mForecastAdapter = ForecastAdapter(clickHandler = this, context = this)
         mForecastList.adapter = mForecastAdapter
 
+        showLoading()
+
         supportLoaderManager.initLoader(FORECAST_LOADER_ID, null, this)
-
-        PreferenceManager
-                .getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        if (mPrefsChanged) {
-            supportLoaderManager.restartLoader(FORECAST_LOADER_ID, null, this)
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        PreferenceManager
-                .getDefaultSharedPreferences(this)
-                .unregisterOnSharedPreferenceChangeListener(this)
     }
 
     private fun showWeatherDataView() {
-        mErrorMessage.visibility = View.INVISIBLE
+        mLoadingView.visibility = View.INVISIBLE
         mForecastList.visibility = View.VISIBLE
-    }
-
-    private fun showErrorMessage() {
-        mForecastList.visibility = View.INVISIBLE
-        mErrorMessage.visibility = View.VISIBLE
     }
 
     override fun onItemClick(weatherData: String) {
@@ -151,32 +140,43 @@ class MainActivity :
     /**
      * LoaderManager.LoaderCallbacks implementation
      */
-    override fun onLoadFinished(loader: Loader<Array<String>>?, weatherData: Array<String>?) {
-        mLoadingView.visibility = View.INVISIBLE
+    override fun onLoadFinished(loader: Loader<Cursor>?, weatherData: Cursor?) {
+        mForecastAdapter.swapCursor(weatherData)
+        if (mPosition == RecyclerView.NO_POSITION) {
+            mPosition = 0
+        }
+        mForecastList.smoothScrollToPosition(mPosition)
 
-        if (weatherData != null) {
-            mForecastAdapter.setWeatherData(weatherData)
+        if (weatherData != null && weatherData.count != 0) {
             showWeatherDataView()
-        } else {
-            showErrorMessage()
         }
     }
 
-    override fun onCreateLoader(loaderId: Int, loaderArgs: Bundle?): Loader<Array<String>> {
-        return FetchWeatherLoader(this@MainActivity, object : WeatherLoaderActions {
-            override fun onStartLoading() {
-                mLoadingView.visibility = View.VISIBLE
+    override fun onCreateLoader(loaderId: Int, loaderArgs: Bundle?): Loader<Cursor>? {
+        when(loaderId) {
+            FORECAST_LOADER_ID -> {
+                val sortOrder = "${WeatherContract.WeatherEntry.COLUMN_DATE} ASC"
+                val selection = WeatherContract.WeatherEntry.getSelectFromTodayOnwards()
+
+                return CursorLoader(
+                        this,
+                        WeatherContract.WeatherEntry.CONTENT_URI,
+                        MAIN_FORECAST_PROJECTION,
+                        selection,
+                        null,
+                        sortOrder
+                )
             }
-        })
+            else -> throw IllegalArgumentException("Loader not implemented: $loaderId")
+        }
     }
 
-    override fun onLoaderReset(loader: Loader<Array<String>>?) {
+    private fun showLoading() {
+        mForecastList.visibility = View.INVISIBLE
+        mLoadingView.visibility = View.VISIBLE
     }
 
-    /**
-     * SharedPreferenceChangeListener implementation
-     */
-    override fun onSharedPreferenceChanged(sharedPrefs: SharedPreferences, key: String) {
-        mPrefsChanged = true
+    override fun onLoaderReset(loader: Loader<Cursor>?) {
+        mForecastAdapter.swapCursor(null)
     }
 }

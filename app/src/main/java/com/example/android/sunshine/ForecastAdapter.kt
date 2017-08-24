@@ -1,26 +1,31 @@
 package com.example.android.sunshine
 
+import android.content.Context
+import android.database.Cursor
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.example.android.sunshine.data.WeatherContract
+import com.example.android.sunshine.utilities.SunshineDateUtils
+import com.example.android.sunshine.utilities.SunshineWeatherUtils
 
 /**
  * Created by pmvb on 17-08-18.
  */
 
-class ForecastAdapter : RecyclerView.Adapter<ForecastAdapter.ForecastViewHolder> {
+class ForecastAdapter(
+        clickHandler: ForecastAdapterOnClickHandler,
+        context: Context
+) : RecyclerView.Adapter<ForecastAdapter.ForecastViewHolder>() {
 
-    private var mWeatherData: Array<String>? = null
-    private lateinit var mClickHandler: ForecastAdapterOnClickHandler
+    private val mClickHandler: ForecastAdapterOnClickHandler = clickHandler
+    private var mCursor: Cursor? = null
+    private val mContext: Context = context
 
     interface ForecastAdapterOnClickHandler {
         fun onItemClick(weatherData: String)
-    }
-
-    constructor(clickHandler: ForecastAdapterOnClickHandler) {
-        mClickHandler = clickHandler
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
@@ -33,28 +38,56 @@ class ForecastAdapter : RecyclerView.Adapter<ForecastAdapter.ForecastViewHolder>
     }
 
     override fun onBindViewHolder(holder: ForecastViewHolder, position: Int) {
-        holder.mWeatherText.text = mWeatherData!![position]
+        if (mCursor == null) {
+            return
+        }
+        val cursor = mCursor!!
+        if (!cursor.moveToPosition(position)) {
+            return
+        }
+
+        val dateStr = SunshineDateUtils.getFriendlyDateString(
+                mContext,
+                cursor.getLong(MainActivity.INDEX_WEATHER_DATE)
+        )
+        val descStr = SunshineWeatherUtils.getStringForWeatherCondition(
+                mContext,
+                cursor.getInt(MainActivity.INDEX_WEATHER_WEATHER_ID)
+        )
+        val maxMinTempStr = SunshineWeatherUtils.formatHighLows(
+                mContext,
+                cursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP),
+                cursor.getDouble(MainActivity.INDEX_WEATHER_MIN_TEMP)
+        )
+
+        var weatherSummary = "$dateStr - $descStr - $maxMinTempStr"
+        holder.mWeatherText.text = weatherSummary
     }
 
     override fun getItemCount(): Int {
-        if (mWeatherData != null) {
-            return mWeatherData!!.size
-        } else {
+        if (mCursor == null) {
             return 0
         }
+        return mCursor!!.count
     }
 
     fun setWeatherData(weatherData: Array<String>) {
-        mWeatherData = weatherData
+//        mWeatherData = weatherData
         notifyDataSetChanged()
     }
 
-    inner class ForecastViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    fun swapCursor(cursor: Cursor?) {
+        mCursor = cursor
+        notifyDataSetChanged()
+    }
 
-        val mWeatherText: TextView
+    inner class ForecastViewHolder(itemView: View) :
+            RecyclerView.ViewHolder(itemView),
+            View.OnClickListener {
+
+        val mWeatherText: TextView = itemView.findViewById(R.id.weather_data) as TextView
 
         init {
-            mWeatherText = itemView.findViewById(R.id.weather_data) as TextView
             itemView.setOnClickListener(this)
         }
 
