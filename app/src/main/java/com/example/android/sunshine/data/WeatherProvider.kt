@@ -131,9 +131,12 @@ class WeatherProvider : ContentProvider() {
     }
 
     private fun insertUtil(db: SQLiteDatabase, values: ContentValues): Long {
-        val date = values.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE)
+        var date = values.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE)
         if (SunshineDateUtils.isDateNormalized(date)) {
-            throw IllegalArgumentException("Date must be normalized to insert")
+            values.put(
+                    WeatherContract.WeatherEntry.COLUMN_DATE,
+                    SunshineDateUtils.normalizeDate(date)
+            )
         }
         val _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values)
         return _id

@@ -22,12 +22,12 @@ class WeatherDbHelper(context: Context) :
         val sqlStatement = "CREATE TABLE ${WeatherContract.WeatherEntry.TABLE_NAME} (" +
                 "${BaseColumns._ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "${WeatherContract.WeatherEntry.COLUMN_DATE} INTEGER NOT NULL UNIQUE," +
-                "${WeatherContract.WeatherEntry.COLUMN_WEATHER_ID} INTEGER NOT NULL,"
+                "${WeatherContract.WeatherEntry.COLUMN_WEATHER_ID} INTEGER NOT NULL," +
                 "${WeatherContract.WeatherEntry.COLUMN_MIN_TEMP} REAL NOT NULL," +
                 "${WeatherContract.WeatherEntry.COLUMN_MAX_TEMP} REAL NOT NULL," +
                 "${WeatherContract.WeatherEntry.COLUMN_HUMIDITY} REAL NOT NULL," +
                 "${WeatherContract.WeatherEntry.COLUMN_PRESSURE} REAL NOT NULL," +
-                "${WeatherContract.WeatherEntry.COLUMN_WIND_SPEED} REAL NOT NULL,"
+                "${WeatherContract.WeatherEntry.COLUMN_WIND_SPEED} REAL NOT NULL," +
                 "${WeatherContract.WeatherEntry.COLUMN_DEGREES} REAL NOT NULL);"
         sqLiteDatabase.execSQL(sqlStatement)
     }
