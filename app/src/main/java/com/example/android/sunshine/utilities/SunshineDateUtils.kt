@@ -136,7 +136,11 @@ object SunshineDateUtils {
      * @return A user-friendly representation of the date such as "Today, June 8", "Tomorrow",
      * * or "Friday"
      */
-    fun getFriendlyDateString(context: Context, dateInMillis: Long, showFullDate: Boolean): String {
+    fun getFriendlyDateString(
+            context: Context,
+            dateInMillis: Long,
+            showFullDate: Boolean = true
+    ): String {
 
         val localDate = getLocalDateFromUTC(dateInMillis)
         val dayNumber = getDayNumber(localDate)
