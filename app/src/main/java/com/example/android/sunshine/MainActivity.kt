@@ -91,9 +91,9 @@ class MainActivity :
         mForecastList.visibility = View.VISIBLE
     }
 
-    override fun onItemClick(weatherData: String) {
+    override fun onItemClick(weatherDate: Long) {
         val forecastDetail = Intent(this, DetailActivity::class.java)
-        forecastDetail.putExtra("weatherData", weatherData)
+        forecastDetail.data = WeatherContract.WeatherEntry.buildWeatherUriWithDate(weatherDate)
         startActivity(forecastDetail)
     }
 
