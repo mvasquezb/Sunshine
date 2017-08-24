@@ -25,7 +25,7 @@ class ForecastAdapter(
     private val mContext: Context = context
 
     interface ForecastAdapterOnClickHandler {
-        fun onItemClick(weatherData: String)
+        fun onItemClick(weatherDate: Long)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
@@ -45,10 +45,10 @@ class ForecastAdapter(
         if (!cursor.moveToPosition(position)) {
             return
         }
-
+        val date = cursor.getLong(MainActivity.INDEX_WEATHER_DATE)
         val dateStr = SunshineDateUtils.getFriendlyDateString(
                 mContext,
-                cursor.getLong(MainActivity.INDEX_WEATHER_DATE)
+                date
         )
         val descStr = SunshineWeatherUtils.getStringForWeatherCondition(
                 mContext,
@@ -62,6 +62,7 @@ class ForecastAdapter(
 
         var weatherSummary = "$dateStr - $descStr - $maxMinTempStr"
         holder.mWeatherText.text = weatherSummary
+        holder.mForecastDate = date
     }
 
     override fun getItemCount(): Int {
@@ -86,13 +87,14 @@ class ForecastAdapter(
             View.OnClickListener {
 
         val mWeatherText: TextView = itemView.findViewById(R.id.weather_data) as TextView
+        var mForecastDate: Long = System.currentTimeMillis()
 
         init {
             itemView.setOnClickListener(this)
         }
 
         override fun onClick(view: View) {
-            mClickHandler.onItemClick(mWeatherText.text.toString())
+            mClickHandler.onItemClick(mForecastDate)
         }
     }
 }
