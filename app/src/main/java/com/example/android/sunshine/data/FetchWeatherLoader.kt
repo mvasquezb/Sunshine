@@ -29,10 +29,9 @@ class FetchWeatherLoader(context: Context) : AsyncTaskLoader<Array<String>>(cont
     }
 
     override fun loadInBackground(): Array<String> {
-        val location = SunshinePreferences.getPreferredWeatherLocation(context)
         var weatherRequestUrl: URL
         try {
-            weatherRequestUrl = NetworkUtils.buildUrl(location)
+            weatherRequestUrl = NetworkUtils.buildUrl(context)
         } catch (e: Exception) {
             e.printStackTrace()
             return arrayOf()

@@ -40,50 +40,45 @@ object SunshinePreferences {
      * we provide some default values to work with.
      */
     private val defaultWeatherLocation = "94043,USA"
-    /** This will be implemented in a future lesson  */
+
     val defaultWeatherCoordinates = doubleArrayOf(37.4284, 122.0724)
 
     private val DEFAULT_MAP_LOCATION = "1600 Amphitheatre Parkway, Mountain View, CA 94043"
 
     /**
-     * Helper method to handle setting location details in Preferences (City Name, Latitude,
-     * Longitude)
+     * Helper method to handle setting location details in Preferences (city name, latitude,
+     * longitude)
+     *
+     *
+     * When the location details are updated, the database should to be cleared.
 
-     * @param c        Context used to get the SharedPreferences
+     * @param context  Context used to get the SharedPreferences
      * *
-     * @param cityName A human-readable city name, e.g "Mountain View"
+     * @param lat      the latitude of the city
      * *
-     * @param lat      The latitude of the city
-     * *
-     * @param lon      The longitude of the city
+     * @param lon      the longitude of the city
      */
-    fun setLocationDetails(c: Context, cityName: String, lat: Double, lon: Double) {
-        /** This will be implemented in a future lesson  */
+    fun setLocationDetails(context: Context, lat: Double, lon: Double) {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = sp.edit()
+
+        editor.putLong(PREF_COORD_LAT, java.lang.Double.doubleToRawLongBits(lat))
+        editor.putLong(PREF_COORD_LONG, java.lang.Double.doubleToRawLongBits(lon))
+        editor.apply()
     }
 
     /**
-     * Helper method to handle setting a new location in preferences.  When this happens
-     * the database may need to be cleared.
+     * Resets the location coordinates stores in SharedPreferences.
 
-     * @param c               Context used to get the SharedPreferences
-     * *
-     * @param locationSetting The location string used to request updates from the server.
-     * *
-     * @param lat             The latitude of the city
-     * *
-     * @param lon             The longitude of the city
+     * @param context Context used to get the SharedPreferences
      */
-    fun setLocation(c: Context, locationSetting: String, lat: Double, lon: Double) {
-        /** This will be implemented in a future lesson  */
-    }
+    fun resetLocationCoordinates(context: Context) {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = sp.edit()
 
-    /**
-     * Resets the stored location coordinates.
-
-     * @param c Context used to get the SharedPreferences
-     */
-    fun resetLocationCoordinates(c: Context) {
-        /** This will be implemented in a future lesson  */
+        editor.remove(PREF_COORD_LAT)
+        editor.remove(PREF_COORD_LONG)
+        editor.apply()
     }
 
     /**
@@ -142,10 +137,79 @@ object SunshinePreferences {
 
      * @param context used to get the SharedPreferences
      * *
-     * @return true if lat/long are set
+     * @return true if lat/long are saved in SharedPreferences
      */
     fun isLocationLatLonAvailable(context: Context): Boolean {
-        /** This will be implemented in a future lesson  */
-        return false
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+
+        val spContainLatitude = sp.contains(PREF_COORD_LAT)
+        val spContainLongitude = sp.contains(PREF_COORD_LONG)
+
+        var spContainBothLatitudeAndLongitude = false
+        if (spContainLatitude && spContainLongitude) {
+            spContainBothLatitudeAndLongitude = true
+        }
+
+        return spContainBothLatitudeAndLongitude
+    }
+
+    /**
+     * Returns the last time that a notification was shown (in UNIX time)
+
+     * @param context Used to access SharedPreferences
+     * *
+     * @return UNIX time of when the last notification was shown
+     */
+    fun getLastNotificationTimeInMillis(context: Context): Long {
+        /* Key for accessing the time at which Sunshine last displayed a notification */
+        val lastNotificationKey = context.getString(R.string.pref_last_notification)
+
+        /* As usual, we use the default SharedPreferences to access the user's preferences */
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+
+        /*
+         * Here, we retrieve the time in milliseconds when the last notification was shown. If
+         * SharedPreferences doesn't have a value for lastNotificationKey, we return 0. The reason
+         * we return 0 is because we compare the value returned from this method to the current
+         * system time. If the difference between the last notification time and the current time
+         * is greater than one day, we will show a notification again. When we compare the two
+         * values, we subtract the last notification time from the current system time. If the
+         * time of the last notification was 0, the difference will always be greater than the
+         * number of milliseconds in a day and we will show another notification.
+         */
+        val lastNotificationTime = sp.getLong(lastNotificationKey, 0)
+
+        return lastNotificationTime
+    }
+
+    /**
+     * Returns the elapsed time in milliseconds since the last notification was shown. This is used
+     * as part of our check to see if we should show another notification when the weather is
+     * updated.
+
+     * @param context Used to access SharedPreferences as well as use other utility methods
+     * *
+     * @return Elapsed time in milliseconds since the last notification was shown
+     */
+    fun getEllapsedTimeSinceLastNotification(context: Context): Long {
+        val lastNotificationTimeMillis = SunshinePreferences.getLastNotificationTimeInMillis(context)
+        val timeSinceLastNotification = System.currentTimeMillis() - lastNotificationTimeMillis
+        return timeSinceLastNotification
+    }
+
+    /**
+     * Saves the time that a notification is shown. This will be used to get the ellapsed time
+     * since a notification was shown.
+
+     * @param context Used to access SharedPreferences
+     * *
+     * @param timeOfNotification Time of last notification to save (in UNIX time)
+     */
+    fun saveLastNotificationTime(context: Context, timeOfNotification: Long) {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = sp.edit()
+        val lastNotificationKey = context.getString(R.string.pref_last_notification)
+        editor.putLong(lastNotificationKey, timeOfNotification)
+        editor.apply()
     }
 }

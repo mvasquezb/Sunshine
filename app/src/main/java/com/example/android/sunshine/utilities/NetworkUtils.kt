@@ -15,7 +15,10 @@
  */
 package com.example.android.sunshine.utilities
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
+import com.example.android.sunshine.data.SunshinePreferences
 
 import java.io.IOException
 import java.io.InputStream
@@ -59,6 +62,58 @@ object NetworkUtils {
     internal val DAYS_PARAM = "cnt"
 
     /**
+     * Retrieves the proper URL to query for the weather data. The reason for both this method as
+     * well as [.buildUrlWithLocationQuery] is two fold.
+     *
+     *
+     * 1) You should be able to just use one method when you need to create the URL within the
+     * app instead of calling both methods.
+     * 2) Later in Sunshine, you are going to add an alternate method of allowing the user
+     * to select their preferred location. Once you do so, there will be another way to form
+     * the URL using a latitude and longitude rather than just a location String. This method
+     * will "decide" which URL to build and return it.
+
+     * @param context used to access other Utility methods
+     * *
+     * @return URL to query weather service
+     */
+    fun buildUrl(context: Context): URL {
+        if (SunshinePreferences.isLocationLatLonAvailable(context)) {
+            val preferredCoordinates = SunshinePreferences.getLocationCoordinates(context)
+            val latitude = preferredCoordinates[0]
+            val longitude = preferredCoordinates[1]
+            return buildUrlWithLatitudeLongitude(latitude, longitude)
+        } else {
+            val locationQuery = SunshinePreferences.getPreferredWeatherLocation(context)
+            return buildUrlWithLocationQuery(locationQuery)
+        }
+    }
+
+    /**
+     * Builds the URL used to talk to the weather server using latitude and longitude of a
+     * location.
+
+     * @param latitude  The latitude of the location
+     * *
+     * @param longitude The longitude of the location
+     * *
+     * @return The Url to use to query the weather server.
+     */
+    private fun buildUrlWithLatitudeLongitude(latitude: Double, longitude: Double): URL {
+        val weatherQueryUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                .appendQueryParameter(LAT_PARAM, latitude.toString())
+                .appendQueryParameter(LON_PARAM, longitude.toString())
+                .appendQueryParameter(FORMAT_PARAM, format)
+                .appendQueryParameter(UNITS_PARAM, units)
+                .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                .build()
+
+        val weatherQueryUrl = URL(weatherQueryUri.toString())
+        Log.v(TAG, "URL: " + weatherQueryUrl)
+        return weatherQueryUrl
+    }
+
+    /**
      * Builds the URL used to talk to the weather server using a location. This location is based
      * on the query capabilities of the weather provider that we are using.
 
@@ -66,30 +121,17 @@ object NetworkUtils {
      * *
      * @return The URL to use to query the weather server.
      */
-    fun buildUrl(locationQuery: String): URL {
-        val queryUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+    private fun buildUrlWithLocationQuery(locationQuery: String): URL {
+        val weatherQueryUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                .appendQueryParameter(QUERY_PARAM, locationQuery)
                 .appendQueryParameter(FORMAT_PARAM, format)
                 .appendQueryParameter(UNITS_PARAM, units)
-                .appendQueryParameter(DAYS_PARAM, numDays.toString())
-                .appendQueryParameter(QUERY_PARAM, locationQuery)
+                .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
                 .build()
 
-        return URL(queryUri.toString())
-    }
-
-    /**
-     * Builds the URL used to talk to the weather server using latitude and longitude of a
-     * location.
-
-     * @param lat The latitude of the location
-     * *
-     * @param lon The longitude of the location
-     * *
-     * @return The Url to use to query the weather server.
-     */
-    fun buildUrl(lat: Double?, lon: Double?): URL? {
-        /** This will be implemented in a future lesson  */
-        return null
+        val weatherQueryUrl = URL(weatherQueryUri.toString())
+        Log.v(TAG, "URL: " + weatherQueryUrl)
+        return weatherQueryUrl
     }
 
     /**
