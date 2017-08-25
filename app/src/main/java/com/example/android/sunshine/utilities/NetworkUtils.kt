@@ -18,6 +18,7 @@ package com.example.android.sunshine.utilities
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import com.example.android.sunshine.R
 import com.example.android.sunshine.data.SunshinePreferences
 
 import java.io.IOException
@@ -34,14 +35,14 @@ object NetworkUtils {
 
     private val TAG = NetworkUtils.javaClass.simpleName
 
-    private val DYNAMIC_WEATHER_URL = "https://andfun-weather.udacity.com/weather"
+    private val DYNAMIC_WEATHER_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
-    private val STATIC_WEATHER_URL = "https://andfun-weather.udacity.com/staticweather"
+//    private val STATIC_WEATHER_URL = "https://andfun-weather.udacity.com/staticweather"
 
-    private val FORECAST_BASE_URL = STATIC_WEATHER_URL
+    private val FORECAST_BASE_URL = DYNAMIC_WEATHER_URL
 
     /*
-     * NOTE: These values only effect responses from OpenWeatherMap, NOT from the fake weather
+     * NOTE: These values only affect responses from OpenWeatherMap, NOT from the fake weather
      * server. They are simply here to allow us to teach you how to build a URL if you were to use
      * a real API.If you want to connect your app to OpenWeatherMap's API, feel free to! However,
      * we are not going to show you how to do so in this course.
@@ -60,6 +61,7 @@ object NetworkUtils {
     internal val FORMAT_PARAM = "mode"
     internal val UNITS_PARAM = "units"
     internal val DAYS_PARAM = "cnt"
+    internal val KEY_PARAM = "APPID"
 
     /**
      * Retrieves the proper URL to query for the weather data. The reason for both this method as
@@ -82,10 +84,10 @@ object NetworkUtils {
             val preferredCoordinates = SunshinePreferences.getLocationCoordinates(context)
             val latitude = preferredCoordinates[0]
             val longitude = preferredCoordinates[1]
-            return buildUrlWithLatitudeLongitude(latitude, longitude)
+            return buildUrlWithLatitudeLongitude(context, latitude, longitude)
         } else {
             val locationQuery = SunshinePreferences.getPreferredWeatherLocation(context)
-            return buildUrlWithLocationQuery(locationQuery)
+            return buildUrlWithLocationQuery(context, locationQuery)
         }
     }
 
@@ -99,13 +101,21 @@ object NetworkUtils {
      * *
      * @return The Url to use to query the weather server.
      */
-    private fun buildUrlWithLatitudeLongitude(latitude: Double, longitude: Double): URL {
+    private fun buildUrlWithLatitudeLongitude(
+            context: Context,
+            latitude: Double,
+            longitude: Double
+    ): URL {
         val weatherQueryUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                 .appendQueryParameter(LAT_PARAM, latitude.toString())
                 .appendQueryParameter(LON_PARAM, longitude.toString())
                 .appendQueryParameter(FORMAT_PARAM, format)
                 .appendQueryParameter(UNITS_PARAM, units)
                 .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                .appendQueryParameter(
+                        KEY_PARAM,
+                        context.getString(R.string.owm_key)
+                )
                 .build()
 
         val weatherQueryUrl = URL(weatherQueryUri.toString())
@@ -121,12 +131,16 @@ object NetworkUtils {
      * *
      * @return The URL to use to query the weather server.
      */
-    private fun buildUrlWithLocationQuery(locationQuery: String): URL {
+    private fun buildUrlWithLocationQuery(context: Context, locationQuery: String): URL {
         val weatherQueryUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                 .appendQueryParameter(QUERY_PARAM, locationQuery)
                 .appendQueryParameter(FORMAT_PARAM, format)
                 .appendQueryParameter(UNITS_PARAM, units)
                 .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                .appendQueryParameter(
+                        KEY_PARAM,
+                        context.getString(R.string.owm_key)
+                )
                 .build()
 
         val weatherQueryUrl = URL(weatherQueryUri.toString())
