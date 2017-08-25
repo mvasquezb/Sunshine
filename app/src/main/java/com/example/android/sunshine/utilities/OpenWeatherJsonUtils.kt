@@ -17,6 +17,7 @@ package com.example.android.sunshine.utilities
 
 import android.content.ContentValues
 import android.content.Context
+import android.util.Log
 import com.example.android.sunshine.data.SunshinePreferences
 import com.example.android.sunshine.data.WeatherContract
 
@@ -51,8 +52,8 @@ object OpenWeatherJsonUtils {
     private val OWM_TEMPERATURE = "temp"
 
     /* Max temperature for the day */
-    private val OWM_MAX = "max"
-    private val OWM_MIN = "min"
+    private val OWM_MAX = "temp_max"
+    private val OWM_MIN = "temp_min"
 
     private val OWM_WEATHER = "weather"
     private val OWM_WEATHER_ID = "id"
@@ -60,7 +61,7 @@ object OpenWeatherJsonUtils {
     private val OWM_MESSAGE_CODE = "cod"
 
     private val OWM_DESCRIPTION = "main"
-
+    private val OWM_WIND = "wind"
 
     /**
      * This method parses JSON from a web response and returns an array of Strings
@@ -229,17 +230,19 @@ object OpenWeatherJsonUtils {
 
             /* Get the JSON object representing the day */
             val dayForecast = jsonWeatherArray.getJSONObject(i)
-
+            val dayMain = dayForecast.getJSONObject(OWM_DESCRIPTION)
+            val dayWind = dayForecast.getJSONObject(OWM_WIND)
+            Log.d("OpenWeatherJsonUtils", dayForecast.toString())
             /*
              * We ignore all the datetime values embedded in the JSON and assume that
              * the values are returned in-order by day (which is not guaranteed to be correct).
              */
             dateTimeMillis = normalizedUtcStartDay + SunshineDateUtils.DAY_IN_MILLIS * i
 
-            pressure = dayForecast.getDouble(OWM_PRESSURE)
-            humidity = dayForecast.getInt(OWM_HUMIDITY)
-            windSpeed = dayForecast.getDouble(OWM_WINDSPEED)
-            windDirection = dayForecast.getDouble(OWM_WIND_DIRECTION)
+            pressure = dayMain.getDouble(OWM_PRESSURE)
+            humidity = dayMain.getInt(OWM_HUMIDITY)
+            windSpeed = dayWind.getDouble(OWM_WINDSPEED)
+            windDirection = dayWind.getDouble(OWM_WIND_DIRECTION)
 
             /*
              * Description is in a child array called "weather", which is 1 element long.
@@ -257,9 +260,8 @@ object OpenWeatherJsonUtils {
              * temperature, temporary variable, temporary folder, temporary employee, or many
              * others, and is just a bad variable name.
              */
-            val temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE)
-            high = temperatureObject.getDouble(OWM_MAX)
-            low = temperatureObject.getDouble(OWM_MIN)
+            high = dayMain.getDouble(OWM_MAX)
+            low = dayMain.getDouble(OWM_MIN)
 
             val weatherValues = ContentValues()
             weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, dateTimeMillis)
