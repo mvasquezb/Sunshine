@@ -37,6 +37,7 @@ import com.example.android.sunshine.data.FetchWeatherLoader
 import com.example.android.sunshine.data.SunshinePreferences
 import com.example.android.sunshine.data.WeatherContract
 import com.example.android.sunshine.data.WeatherLoaderActions
+import com.example.android.sunshine.sync.SunshineSyncUtils
 
 class MainActivity :
         AppCompatActivity(),
@@ -84,6 +85,8 @@ class MainActivity :
         showLoading()
 
         supportLoaderManager.initLoader(FORECAST_LOADER_ID, null, this)
+
+        SunshineSyncUtils.startImmediateSync(context = this)
     }
 
     private fun showWeatherDataView() {
@@ -104,10 +107,6 @@ class MainActivity :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.btn_action_refresh -> {
-                mForecastAdapter.setWeatherData(arrayOf<String>())
-                supportLoaderManager.restartLoader(FORECAST_LOADER_ID, null, this)
-            }
             R.id.btn_action_map -> {
                 openLocationInMap()
             }
