@@ -2,6 +2,7 @@ package com.example.android.sunshine.sync
 
 import android.content.ContentValues
 import android.content.Context
+import android.util.Log
 import com.example.android.sunshine.data.WeatherContract
 import com.example.android.sunshine.data.WeatherProvider
 import com.example.android.sunshine.utilities.NetworkUtils
@@ -17,6 +18,7 @@ object SunshineSyncTask {
     @Synchronized
     fun syncWeather(context: Context) {
         val jsonWeatherData = getLiveWeatherData(context)
+        Log.d("SunshineSyncTask", "jsonWeatherData: $jsonWeatherData")
         if (jsonWeatherData.isEmpty()) {
             return
         }
@@ -29,7 +31,9 @@ object SunshineSyncTask {
         } catch (e: JSONException) {
             e.printStackTrace()
         }
+        Log.d("SunshineSyncTask", weatherValues.toString())
         if (weatherValues != null) {
+            Log.d("SunshineSyncTask", weatherValues.toString())
             context.contentResolver.delete(WeatherContract.WeatherEntry.CONTENT_URI, null, null)
             context.contentResolver.bulkInsert(
                     WeatherContract.WeatherEntry.CONTENT_URI,
