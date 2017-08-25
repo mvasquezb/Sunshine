@@ -77,7 +77,7 @@ class DetailActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.btn_action_refresh -> {
+            R.id.btn_action_share -> {
                 shareForecast()
                 return true
             }
