@@ -3,6 +3,9 @@ package com.example.android.sunshine
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.preference.*
+import com.example.android.sunshine.data.SunshinePreferences
+import com.example.android.sunshine.data.WeatherContract
+import com.example.android.sunshine.sync.SunshineSyncUtils
 
 /**
  * Created by pmvb on 17-08-20.
@@ -21,7 +24,7 @@ class SettingsFragment :
                 .getDefaultSharedPreferences(activity)
         sharedPrefs.registerOnSharedPreferenceChangeListener(this)
 
-        // Set current preference summary
+        // Set current location preference summary
         val preference = findPreference(getString(R.string.pref_location_key)) as EditTextPreference
         preference.summary = preference.text
     }
@@ -35,6 +38,21 @@ class SettingsFragment :
 
     override fun onSharedPreferenceChanged(sharedPrefs: SharedPreferences, key: String) {
         val preference = findPreference(key)
+        when(key) {
+            getString(R.string.pref_location_key) -> {
+                // Location has changed. Reset saved data and resync
+                SunshinePreferences.resetLocationCoordinates(activity)
+                SunshineSyncUtils.startImmediateSync(activity)
+            }
+            getString(R.string.pref_units_key) -> {
+                // Update weather entries to match new units
+                activity.contentResolver.notifyChange(
+                        WeatherContract.WeatherEntry.CONTENT_URI,
+                        null
+                )
+            }
+        }
+
         if (preference != null && preference !is CheckBoxPreference) {
             setPreferenceSummary(preference, sharedPrefs.getString(key, ""))
         }
