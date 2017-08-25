@@ -45,6 +45,8 @@
             android:name=".data.WeatherProvider"
             android:exported="true"
             android:enabled="true" />
+
+        <service android:name=".sync.SunshineSyncService" android:exported="false"/>
     </application>
 
 </manifest>
