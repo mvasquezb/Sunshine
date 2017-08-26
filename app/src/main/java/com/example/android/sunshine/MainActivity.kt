@@ -86,7 +86,7 @@ class MainActivity :
 
         supportLoaderManager.initLoader(FORECAST_LOADER_ID, null, this)
 
-        SunshineSyncUtils.startImmediateSync(context = this)
+        SunshineSyncUtils.initialize(context = this)
     }
 
     private fun showWeatherDataView() {
