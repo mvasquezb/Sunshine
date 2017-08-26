@@ -19,6 +19,9 @@ import android.content.Context
 import android.support.v7.preference.PreferenceManager
 import android.util.Log
 import com.example.android.sunshine.R
+import android.content.SharedPreferences
+
+
 
 object SunshinePreferences {
 
@@ -211,5 +214,38 @@ object SunshinePreferences {
         val lastNotificationKey = context.getString(R.string.pref_last_notification)
         editor.putLong(lastNotificationKey, timeOfNotification)
         editor.apply()
+    }
+
+    /**
+     * Returns true if the user prefers to see notifications from Sunshine, false otherwise. This
+     * preference can be changed by the user within the SettingsFragment.
+
+     * @param context Used to access SharedPreferences
+     * *
+     * @return true if the user prefers to see notifications, false otherwise
+     */
+    fun areNotificationsEnabled(context: Context): Boolean {
+        /* Key for accessing the preference for showing notifications */
+        val displayNotificationsKey = context.getString(R.string.pref_enable_notifications_key)
+
+        /*
+         * In Sunshine, the user has the ability to say whether she would like notifications
+         * enabled or not. If no preference has been chosen, we want to be able to determine
+         * whether or not to show them. To do this, we reference a bool stored in bools.xml.
+         */
+        val shouldDisplayNotificationsByDefault = context
+                .resources
+                .getBoolean(R.bool.pref_enable_notifications_default)
+
+        /* As usual, we use the default SharedPreferences to access the user's preferences */
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+
+        /* If a value is stored with the key, we extract it here. If not, use a default. */
+        val shouldDisplayNotifications = sp.getBoolean(
+                displayNotificationsKey,
+                shouldDisplayNotificationsByDefault
+        )
+
+        return shouldDisplayNotifications
     }
 }
