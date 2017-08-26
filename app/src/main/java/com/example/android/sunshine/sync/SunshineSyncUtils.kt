@@ -33,7 +33,7 @@ object SunshineSyncUtils {
                 .setRecurring(true)
                 .setTrigger(Trigger.executionWindow(
                         SYNC_INTERVAL_SECONDS,
-                        SYNC_INTERVAL_HOURS + SYNC_FLEXTIME_SECONDS
+                        SYNC_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS
                 ))
                 .setReplaceCurrent(true)
                 .build()
