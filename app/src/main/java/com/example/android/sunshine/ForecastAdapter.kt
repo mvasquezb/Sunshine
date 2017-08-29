@@ -20,21 +20,42 @@ class ForecastAdapter(
         context: Context
 ) : RecyclerView.Adapter<ForecastAdapter.ForecastViewHolder>() {
 
-    private val mClickHandler: ForecastAdapterOnClickHandler = clickHandler
-    private var mCursor: Cursor? = null
-    private val mContext: Context = context
+    companion object {
+        const val VIEW_TYPE_TODAY = 2312
+        const val VIEW_TYPE_FUTURE_DAY = 6323
+    }
 
     interface ForecastAdapterOnClickHandler {
         fun onItemClick(weatherDate: Long)
     }
 
+    private val mClickHandler: ForecastAdapterOnClickHandler = clickHandler
+    private var mCursor: Cursor? = null
+    private val mContext: Context = context
+    private val mUseTodayLayout = context.resources.getBoolean(R.bool.use_today_layout)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
+        /**
+         * Get correct layout for view type
+         */
+        val layoutId = when(viewType) {
+            VIEW_TYPE_TODAY -> R.layout.forecast_list_item_today
+            VIEW_TYPE_FUTURE_DAY -> R.layout.forecast_list_item
+            else -> throw IllegalArgumentException("Unknown view type")
+        }
         val itemView = LayoutInflater.from(parent.context).inflate(
-                R.layout.forecast_list_item,
+                layoutId,
                 parent,
                 false
         )
         return ForecastViewHolder(itemView)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        if (mUseTodayLayout && position == 0) {
+            return VIEW_TYPE_TODAY
+        }
+        return VIEW_TYPE_FUTURE_DAY
     }
 
     override fun onBindViewHolder(holder: ForecastViewHolder, position: Int) {
@@ -59,9 +80,16 @@ class ForecastAdapter(
          * Weather condition icon
          */
         val weatherConditionId = cursor.getInt(MainActivity.INDEX_WEATHER_WEATHER_ID)
-        holder.mWeatherIcon.setImageResource(
+        val imageResource = when(getItemViewType(position)) {
+            VIEW_TYPE_TODAY -> {
+                SunshineWeatherUtils.getLargeArtResourceIdForWeatherCondition(weatherConditionId)
+            }
+            VIEW_TYPE_FUTURE_DAY -> {
                 SunshineWeatherUtils.getSmallArtResourceIdForWeatherCondition(weatherConditionId)
-        )
+            }
+            else -> throw IllegalArgumentException("Unknown item view type")
+        }
+        holder.mWeatherIcon.setImageResource(imageResource)
         /**
          * Weather condition text
          */
@@ -99,7 +127,7 @@ class ForecastAdapter(
             View.OnClickListener {
 
         val mDateText = itemView.findViewById(R.id.dateText) as TextView
-        val mConditionText = itemView.findViewById(R.id.weatherDescription) as TextView
+        val mConditionText = itemView.findViewById(R.id.weatherConditionText) as TextView
         val mHighTempText = itemView.findViewById(R.id.highTempText) as TextView
         val mLowTempText = itemView.findViewById(R.id.lowTempText) as TextView
         val mWeatherIcon = itemView.findViewById(R.id.weatherIcon) as ImageView
