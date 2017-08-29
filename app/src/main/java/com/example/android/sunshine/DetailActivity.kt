@@ -133,7 +133,11 @@ class DetailActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                 this,
                 weatherConditionId
         )
+        val conditionA11y = getString(R.string.a11y_forecast_icon, weatherConditionStr)
+
         mDetailBinding.primaryWeatherInfo.weatherConditionText.text = weatherConditionStr
+        mDetailBinding.primaryWeatherInfo.weatherConditionText.contentDescription = conditionA11y
+        mDetailBinding.primaryWeatherInfo.weatherIcon.contentDescription = conditionA11y
 
         /**
          * High and low temperature
@@ -147,23 +151,48 @@ class DetailActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                 data.getDouble(INDEX_WEATHER_MAX_TEMP)
         )
         mDetailBinding.primaryWeatherInfo.lowTempText.text = minTemperatureStr
-        mDetailBinding.primaryWeatherInfo.lowTempText.text = maxTemperatureStr
+        mDetailBinding.primaryWeatherInfo.lowTempText.contentDescription = getString(
+                R.string.a11y_low_temp,
+                minTemperatureStr
+        )
+        mDetailBinding.primaryWeatherInfo.highTempText.text = maxTemperatureStr
+        mDetailBinding.primaryWeatherInfo.highTempText.contentDescription = getString(
+                R.string.a11y_high_temp,
+                maxTemperatureStr
+        )
 
         /**
          * Humidity, pressure and wind
          */
-        mDetailBinding.extraWeatherDetails.weatherHumidity.text = getString(
+        val humidityStr = getString(
                 R.string.format_humidity,
                 data.getFloat(INDEX_WEATHER_HUMIDITY)
         )
-        mDetailBinding.extraWeatherDetails.weatherPressure.text = getString(
+        mDetailBinding.extraWeatherDetails.weatherHumidity.text = humidityStr
+        mDetailBinding.extraWeatherDetails.weatherHumidity.contentDescription = getString(
+                R.string.a11y_humidity,
+                humidityStr
+        )
+
+        val pressureStr = getString(
                 R.string.format_pressure,
                 data.getFloat(INDEX_WEATHER_PRESSURE)
         )
-        mDetailBinding.extraWeatherDetails.weatherWind.text = SunshineWeatherUtils.getFormattedWind(
+        mDetailBinding.extraWeatherDetails.weatherPressure.text = pressureStr
+        mDetailBinding.extraWeatherDetails.weatherPressure.contentDescription = getString(
+                R.string.a11y_pressure,
+                pressureStr
+        )
+
+        val windStr = SunshineWeatherUtils.getFormattedWind(
                 this,
                 data.getFloat(INDEX_WEATHER_WIND_SPEED),
                 data.getFloat(INDEX_WEATHER_DEGREES)
+        )
+        mDetailBinding.extraWeatherDetails.weatherWind.text = windStr
+        mDetailBinding.extraWeatherDetails.weatherWind.contentDescription = getString(
+                R.string.a11y_wind,
+                windStr
         )
 
         mForecastSummary = "$dateStr - $weatherConditionStr - $minTemperatureStr/$maxTemperatureStr"
