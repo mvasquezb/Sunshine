@@ -78,6 +78,7 @@
         <xliff:g id="temp">%1.0f</xliff:g>\u00B0F
     </string>
 
+    <string name="wind_label">Wind</string>
     <!-- Wind in kph [CHAR LIMIT=25] -->
     <string name="format_wind_kmh">
         <xliff:g id="speed">%1$1.0f</xliff:g> km/h <xliff:g id="direction">%2$s</xliff:g>
@@ -199,8 +200,5 @@
         High: <xliff:g id="high">%2$s</xliff:g>
         Low: <xliff:g id="low">%3$s</xliff:g>
     </string>
-    <string name="weather_detail_humidity_title">Humidity</string>
-    <string name="weather_detail_pressure_title">Pressure</string>
-    <string name="weather_detail_wind_title">Wind</string>
 
 </resources>
