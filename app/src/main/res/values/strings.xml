@@ -23,7 +23,7 @@
     <!--It's good to keep this short, so your launcher icon isn't displayed with "The greatest Wea"-->
     <!--or something similar.-->
     <string name="app_name">Sunshine</string>
-
+    <string name="detail_activity_title">Details</string>
     <string name="action_refresh_title">Refresh</string>
     <string name="loading_error_message">Failed to load weather data. Please try again.</string>
 
@@ -199,4 +199,8 @@
         High: <xliff:g id="high">%2$s</xliff:g>
         Low: <xliff:g id="low">%3$s</xliff:g>
     </string>
+    <string name="weather_detail_humidity_title">Humidity</string>
+    <string name="weather_detail_pressure_title">Pressure</string>
+    <string name="weather_detail_wind_title">Wind</string>
+
 </resources>
