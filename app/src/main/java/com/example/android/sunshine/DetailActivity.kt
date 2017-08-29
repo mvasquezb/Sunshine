@@ -2,6 +2,7 @@ package com.example.android.sunshine
 
 import android.content.Intent
 import android.database.Cursor
+import android.databinding.DataBindingUtil
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -11,8 +12,8 @@ import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import com.example.android.sunshine.data.WeatherContract
+import com.example.android.sunshine.databinding.ActivityDetailBinding
 import com.example.android.sunshine.utilities.SunshineDateUtils
 import com.example.android.sunshine.utilities.SunshineWeatherUtils
 
@@ -42,28 +43,17 @@ class DetailActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
         @JvmField val INDEX_WEATHER_DEGREES = 7
     }
 
-    private lateinit var mWeatherDate: TextView
-    private lateinit var mWeatherCondition: TextView
-    private lateinit var mWeatherMinTemp: TextView
-    private lateinit var mWeatherMaxTemp: TextView
-    private lateinit var mWeatherHumidity: TextView
-    private lateinit var mWeatherPressure: TextView
-    private lateinit var mWeatherWind: TextView
+    private lateinit var mDetailBinding: ActivityDetailBinding
 
     private lateinit var mUri: Uri
     private var mForecastSummary: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_detail)
 
-        mWeatherDate = findViewById(R.id.weather_detail_date) as TextView
-        mWeatherCondition = findViewById(R.id.weather_detail_condition) as TextView
-        mWeatherMinTemp = findViewById(R.id.weather_detail_min_temp) as TextView
-        mWeatherMaxTemp = findViewById(R.id.weather_detail_max_temp) as TextView
-        mWeatherHumidity = findViewById(R.id.weather_detail_humidity) as TextView
-        mWeatherPressure = findViewById(R.id.weather_detail_pressure) as TextView
-        mWeatherWind = findViewById(R.id.weather_detail_wind) as TextView
+        mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail)
+
+        title = getString(R.string.detail_activity_title)
 
         mUri = intent.data!!
 
@@ -103,9 +93,7 @@ class DetailActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                         this,
                         mUri,
                         DETAIL_FORECAST_PROJECTION,
-                        null,
-                        null,
-                        null
+                        null, null, null
                 )
             }
             else -> throw IllegalArgumentException("Loader not implemented: $loaderId")
@@ -120,36 +108,64 @@ class DetailActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
         if (data == null || !data.moveToFirst()) {
             return
         }
-        mWeatherDate.text = SunshineDateUtils.getFriendlyDateString(
+
+        /**
+         * Weather Icon
+         */
+        val weatherConditionId = data.getInt(INDEX_WEATHER_WEATHER_ID)
+        mDetailBinding.primaryWeatherInfo.weatherIcon.setImageResource(
+                SunshineWeatherUtils.getLargeArtResourceIdForWeatherCondition(weatherConditionId)
+        )
+
+        /**
+         * Weather date
+         */
+        val dateStr = SunshineDateUtils.getFriendlyDateString(
                 this,
                 data.getLong(INDEX_WEATHER_DATE)
         )
-        mWeatherCondition.text = SunshineWeatherUtils.getStringForWeatherCondition(
+        mDetailBinding.primaryWeatherInfo.dateText.text = dateStr
+
+        /**
+         * Weather condition
+         */
+        val weatherConditionStr = SunshineWeatherUtils.getStringForWeatherCondition(
                 this,
-                data.getInt(INDEX_WEATHER_WEATHER_ID)
+                weatherConditionId
         )
-        mWeatherMinTemp.text = SunshineWeatherUtils.formatTemperature(
+        mDetailBinding.primaryWeatherInfo.weatherConditionText.text = weatherConditionStr
+
+        /**
+         * High and low temperature
+         */
+        val minTemperatureStr = SunshineWeatherUtils.formatTemperature(
                 this,
                 data.getDouble(INDEX_WEATHER_MIN_TEMP)
         )
-        mWeatherMaxTemp.text = SunshineWeatherUtils.formatTemperature(
+        val maxTemperatureStr = SunshineWeatherUtils.formatTemperature(
                 this,
                 data.getDouble(INDEX_WEATHER_MAX_TEMP)
         )
-        mWeatherHumidity.text = getString(
+        mDetailBinding.primaryWeatherInfo.lowTempText.text = minTemperatureStr
+        mDetailBinding.primaryWeatherInfo.lowTempText.text = maxTemperatureStr
+
+        /**
+         * Humidity, pressure and wind
+         */
+        mDetailBinding.extraWeatherDetails.weatherHumidity.text = getString(
                 R.string.format_humidity,
                 data.getFloat(INDEX_WEATHER_HUMIDITY)
         )
-        mWeatherPressure.text = getString(
+        mDetailBinding.extraWeatherDetails.weatherPressure.text = getString(
                 R.string.format_pressure,
                 data.getFloat(INDEX_WEATHER_PRESSURE)
         )
-        mWeatherWind.text = SunshineWeatherUtils.getFormattedWind(
+        mDetailBinding.extraWeatherDetails.weatherWind.text = SunshineWeatherUtils.getFormattedWind(
                 this,
                 data.getFloat(INDEX_WEATHER_WIND_SPEED),
                 data.getFloat(INDEX_WEATHER_DEGREES)
         )
-        mForecastSummary = "${mWeatherDate.text} - ${mWeatherCondition.text} - " +
-                "${mWeatherMaxTemp.text}/${mWeatherMinTemp.text}"
+
+        mForecastSummary = "$dateStr - $weatherConditionStr - $minTemperatureStr/$maxTemperatureStr"
     }
 }
