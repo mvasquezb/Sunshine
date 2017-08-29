@@ -65,6 +65,10 @@
     <!-- - - - - - - - - - - - - - - -->
 
     <!-- Temperature format in Celsius [CHAR LIMIT=5] -->
+    <string name="format_temperature">
+        <xliff:g id="temp">%1.0f</xliff:g>\u00B0
+    </string>
+
     <string name="format_temperature_celsius">
         <xliff:g id="temp">%1.0f</xliff:g>\u00B0C
     </string>
