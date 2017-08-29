@@ -35,7 +35,7 @@
         android:layout_marginStart="16dp"/>
 
     <TextView
-        android:id="@+id/weatherDescription"
+        android:id="@+id/weatherConditionText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="Light Rain"
