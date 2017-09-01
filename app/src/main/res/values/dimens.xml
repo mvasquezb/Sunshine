@@ -35,4 +35,5 @@
     <dimen name="forecast_detail_low_temp_text_size">32sp</dimen>
     <dimen name="forecast_detail_high_temp_text_size">64sp</dimen>
     <dimen name="forecast_detail_date_text_size">20sp</dimen>
+    <dimen name="forecast_detail_margin_start">44dp</dimen>
 </resources>

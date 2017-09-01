@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="forecast_detail_padding_vertical">44dp</dimen>
+    <dimen name="forecast_detail_padding_horizontal">16dp</dimen>
+    <dimen name="forecast_detail_margin_start">20dp</dimen>
+    <dimen name="forecast_extra_item_separator_vertical">48dp</dimen>
+    <dimen name="forecast_extra_detail_margin_horizontal">32dp</dimen>
+    <dimen name="forecast_extra_detail_margin_start">@dimen/forecast_extra_detail_margin_horizontal</dimen>
+</resources>
