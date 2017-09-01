@@ -16,7 +16,7 @@
     <dimen name="list_item_low_temperature_text_size">48sp</dimen>
     <dimen name="list_item_date_margin_left">16dp</dimen>
     <dimen name="list_item_date_margin_start">16dp</dimen>
-    <dimen name="forecast_extra_detail_margin_horizontal">64dp</dimen>
+    <dimen name="forecast_extra_detail_margin_horizontal">52dp</dimen>
     <dimen name="forecast_extra_detail_margin_start">@dimen/forecast_extra_detail_margin_horizontal</dimen>
     <dimen name="forecast_extra_detail_margin_vertical">56dp</dimen>
     <dimen name="forecast_extra_item_separator_vertical">72dp</dimen>
@@ -26,7 +26,7 @@
     <dimen name="today_icon_margin_top">16dp</dimen>
     <dimen name="today_condition_margin_top">8dp</dimen>
     <dimen name="today_high_temp_text_size">44sp</dimen>
-    <dimen name="today_high_temp_margin_top">32dp</dimen>
+    <dimen name="today_high_temp_margin_top">24dp</dimen>
     <dimen name="today_low_temp_margin_top">12dp</dimen>
     <dimen name="today_low_temp_text_size">28sp</dimen>
     <dimen name="today_date_text_size">20sp</dimen>
