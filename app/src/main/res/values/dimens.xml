@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="forecast_detail_padding_vertical">32dp</dimen>
+    <dimen name="forecast_detail_padding_vertical">36dp</dimen>
     <dimen name="forecast_detail_padding_horizontal">16dp</dimen>
     <dimen name="today_icon">96dp</dimen>
     <dimen name="list_icon">40dp</dimen>
-    <dimen name="forecast_text_size">28dp</dimen>
+    <dimen name="forecast_text_size">20sp</dimen>
     <dimen name="forecast_temperature_space">4dp</dimen>
     <dimen name="today_list_item_padding_vertical">16dp</dimen>
     <dimen name="list_item_icon_margin_right">24dp</dimen>
@@ -13,7 +13,26 @@
     <dimen name="loading_indicator_size">42dp</dimen>
     <dimen name="list_item_high_temperature_margin">12dp</dimen>
     <dimen name="list_item_padding_vertical">12dp</dimen>
-    <dimen name="list_item_low_temperature_text_size">48dp</dimen>
+    <dimen name="list_item_low_temperature_text_size">48sp</dimen>
     <dimen name="list_item_date_margin_left">16dp</dimen>
     <dimen name="list_item_date_margin_start">16dp</dimen>
+    <dimen name="forecast_extra_detail_margin_horizontal">64dp</dimen>
+    <dimen name="forecast_extra_detail_margin_start">@dimen/forecast_extra_detail_margin_horizontal</dimen>
+    <dimen name="forecast_extra_detail_margin_vertical">56dp</dimen>
+    <dimen name="forecast_extra_item_separator_vertical">72dp</dimen>
+    <dimen name="list_item_low_temp_margin_bottom">8dp</dimen>
+    <dimen name="today_weather_condition_margin_vertical">8dp</dimen>
+    <dimen name="today_item_padding_horizontal">56dp</dimen>
+    <dimen name="today_icon_margin_top">16dp</dimen>
+    <dimen name="today_condition_margin_top">8dp</dimen>
+    <dimen name="today_high_temp_text_size">44sp</dimen>
+    <dimen name="today_high_temp_margin_top">32dp</dimen>
+    <dimen name="today_low_temp_margin_top">12dp</dimen>
+    <dimen name="today_low_temp_text_size">28sp</dimen>
+    <dimen name="today_date_text_size">20sp</dimen>
+    <dimen name="forecast_detail_low_temp_margin_start">36dp</dimen>
+    <dimen name="forecast_detail_low_temp_margin_top">8dp</dimen>
+    <dimen name="forecast_detail_low_temp_text_size">32sp</dimen>
+    <dimen name="forecast_detail_high_temp_text_size">64sp</dimen>
+    <dimen name="forecast_detail_date_text_size">20sp</dimen>
 </resources>

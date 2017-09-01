@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:background="@color/detail_accent_pane_background">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <include
-            android:id="@+id/primaryWeatherInfo"
-            layout="@layout/primary_weather_info"/>
+            <include
+                android:id="@+id/primaryWeatherInfo"
+                layout="@layout/primary_weather_info"/>
 
-        <include
-            android:id="@+id/extraWeatherDetails"
-            layout="@layout/extra_weather_details"/>
-    </LinearLayout>
+            <include
+                android:id="@+id/extraWeatherDetails"
+                layout="@layout/extra_weather_details"/>
+        </LinearLayout>
+    </ScrollView>
 </layout>
