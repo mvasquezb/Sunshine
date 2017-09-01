@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/today_list_item_padding_vertical"
     android:paddingRight="@dimen/today_item_padding_horizontal"
     android:paddingEnd="@dimen/today_item_padding_horizontal"
-    android:background="@color/colorPrimary">
+    android:background="@drawable/today_touch_selector">
 
     <TextView
         android:id="@+id/dateText"

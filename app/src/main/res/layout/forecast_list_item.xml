@@ -12,7 +12,8 @@
     android:paddingRight="@dimen/list_item_padding_horizontal"
     android:paddingEnd="@dimen/list_item_padding_horizontal"
     android:paddingTop="@dimen/list_item_padding_vertical"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/touch_selector">
 
     <ImageView
         android:id="@+id/weatherIcon"
